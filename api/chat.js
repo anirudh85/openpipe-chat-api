@@ -16,16 +16,20 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Check for OpenPipe API error
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error("OpenPipe API returned unexpected format:", data);
-      return res.status(500).json({ error: "Unexpected response from AI." });
+    // Debug log: see exactly what OpenPipe sends back
+    console.log("OpenPipe raw response:", JSON.stringify(data, null, 2));
+
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      return res.status(500).json({
+        error: "Unexpected OpenPipe response",
+        raw: data
+      });
     }
 
-    res.status(200).json({ reply: data.choices[0].message.content });
+    return res.status(200).json({ reply: data.choices[0].message.content });
 
   } catch (err) {
-    console.error("Error calling OpenPipe:", err);
-    res.status(500).json({ error: "Internal server error." });
+    console.error("Server error:", err);
+    return res.status(500).json({ error: "Server error", details: err.message });
   }
 }
