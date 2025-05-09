@@ -1,5 +1,19 @@
+export const config = {
+  api: {
+    bodyParser: true, // Enable automatic JSON body parsing
+  },
+};
+
 export default async function handler(req, res) {
-  const userMessage = req.body.message;
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Only POST requests allowed" });
+  }
+
+  const userMessage = req.body?.message;
+
+  if (!userMessage) {
+    return res.status(400).json({ error: "Missing 'message' in request body" });
+  }
 
   try {
     const response = await fetch("https://api.openpipe.ai/v1/chat/completions", {
@@ -16,10 +30,7 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Debug log: see exactly what OpenPipe sends back
-    console.log("OpenPipe raw response:", JSON.stringify(data, null, 2));
-
-    if (!data.choices || !data.choices[0]?.message?.content) {
+    if (!data.choices?.[0]?.message?.content) {
       return res.status(500).json({
         error: "Unexpected OpenPipe response",
         raw: data
@@ -29,7 +40,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ reply: data.choices[0].message.content });
 
   } catch (err) {
-    console.error("Server error:", err);
+    console.error("OpenPipe error:", err);
     return res.status(500).json({ error: "Server error", details: err.message });
   }
 }
