@@ -1,6 +1,6 @@
 export const config = {
   api: {
-    bodyParser: true, // Enable automatic JSON body parsing
+    bodyParser: true,
   },
 };
 
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
   if (req.method === "OPTIONS") {
-    return res.status(200).end(); // Preflight support
+    return res.status(200).end();
   }
 
   if (req.method !== "POST") {
@@ -23,6 +23,11 @@ export default async function handler(req, res) {
   if (!userMessage) {
     return res.status(400).json({ error: "Missing 'message' in request body" });
   }
+
+  // 🔍 Log env variables and request data
+  console.log("Model ID:", process.env.MODEL_ID);
+  console.log("API Key exists:", !!process.env.OPENPIPE_API_KEY);
+  console.log("User message:", userMessage);
 
   try {
     const response = await fetch("https://api.openpipe.ai/v1/chat/completions", {
