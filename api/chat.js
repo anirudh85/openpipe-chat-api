@@ -5,7 +5,6 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  // ✅ Enable CORS
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -24,19 +23,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing 'message' in request body" });
   }
 
-  console.log("Model ID:", process.env.MODEL_ID);
-  console.log("API Key exists:", !!process.env.OPENPIPE_API_KEY);
-  console.log("User message:", userMessage);
+  // ✅ Hardcoded for debugging
+  const API_KEY = "opk_745a203d5250b3afb54f39976a6bcce1a3ecca1384"; // ← Your actual OpenPipe API key
+  const MODEL_ID = "openpipe:polite-geckos-mindspace";
 
   try {
-    const response = await fetch("https://openpipe.vercel.app/api/chat", {
+    const response = await fetch("https://api.openpipe.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${process.env.OPENPIPE_API_KEY}`
+        "Authorization": `Bearer ${API_KEY}`
       },
       body: JSON.stringify({
-        model: process.env.MODEL_ID,
+        model: MODEL_ID,
         messages: [{ role: "user", content: userMessage }]
       })
     });
@@ -50,8 +49,6 @@ export default async function handler(req, res) {
     } catch (e) {
       return res.status(500).json({ error: "Invalid JSON response from OpenPipe", raw: text });
     }
-
-    console.log("OpenPipe structured response:", JSON.stringify(data, null, 2));
 
     const reply = data.choices?.[0]?.message?.content;
 
