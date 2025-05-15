@@ -24,7 +24,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing 'message' in request body" });
   }
 
-  // 🔍 Log env variables and request data
   console.log("Model ID:", process.env.MODEL_ID);
   console.log("API Key exists:", !!process.env.OPENPIPE_API_KEY);
   console.log("User message:", userMessage);
@@ -52,11 +51,17 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Invalid JSON response from OpenPipe", raw: text });
     }
 
-    if (!data.choices?.[0]?.message?.content) {
-      return res.status(500).json({ error: "Unexpected OpenPipe response", raw: data });
+    // Log the entire response to help with debugging
+    console.log("OpenPipe structured response:", JSON.stringify(data, null, 2));
+
+    // Gracefully handle empty or malformed responses
+    const reply = data.choices?.[0]?.message?.content;
+
+    if (!reply) {
+      return res.status(200).json({ reply: "" });
     }
 
-    return res.status(200).json({ reply: data.choices[0].message.content });
+    return res.status(200).json({ reply });
 
   } catch (err) {
     console.error("OpenPipe error:", err);
