@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   console.log("User message:", userMessage);
 
   try {
-    const response = await fetch("https://api.openpipe.ai/v1/chat/completions", {
+    const response = await fetch("https://openpipe.vercel.app/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
