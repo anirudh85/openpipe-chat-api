@@ -29,7 +29,7 @@ export default async function handler(req, res) {
   console.log("User message:", userMessage);
 
   try {
-    const response = await fetch("https://openpipe.chat/api/chat", {
+    const response = await fetch("https://api.openpipe.ai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -51,10 +51,8 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Invalid JSON response from OpenPipe", raw: text });
     }
 
-    // Log the entire response to help with debugging
     console.log("OpenPipe structured response:", JSON.stringify(data, null, 2));
 
-    // Gracefully handle empty or malformed responses
     const reply = data.choices?.[0]?.message?.content;
 
     if (!reply) {
